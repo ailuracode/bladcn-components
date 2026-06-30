@@ -24,6 +24,7 @@
 @endphp
 
 <div {{ $attributes->merge($presetAttributes)->class(['relative inline-block', $class]) }}
+    x-bind:data-menu-id="id"
     x-bind:data-state="panelOpen ? 'open' : 'closed'"
     x-data="bladcnDropdownMenu({
         id: @js(filled($id) ? $id : null),
@@ -32,7 +33,7 @@
         radioValue: @js($defaultRadioValue),
     })"
     x-id="['dropdown-menu']"
-    x-on:click.outside="close()"
+    x-on:click.window="handleOutsideClick($event)"
     x-on:keydown.window="handleKeydown($event)">
     {{ $slot }}
 </div>
@@ -63,20 +64,25 @@
                     bladcnRegisterMenu(id, {
                         orientation: 'vertical',
                         onClose: () => {
-                            this.$root
+                            const container =
+                                this.$store.menu
+                                .instances[id]
+                                ?.container ?? this
+                                .$root;
+
+                            container
                                 .querySelectorAll(
-                                    '[data-slot=dropdown-menu-sub]'
+                                    '[data-slot=dropdown-menu-sub]',
                                 )
                                 .forEach((
-                                    element
-                                ) => {
-                                    Alpine
-                                        .$data(
-                                            element
-                                        )
-                                        ?.closeSub
-                                        ?.();
-                                });
+                                    element) => {
+                                        Alpine
+                                            .$data(
+                                                element
+                                                )
+                                            ?.closeSub
+                                            ?.();
+                                    });
                         },
                     });
 
@@ -144,6 +150,15 @@
                     this.$store.menu.close(this.id);
                 },
 
+                handleOutsideClick(event) {
+                    if (!this.panelOpen) {
+                        return;
+                    }
+
+                    this.$store.menu.handleOutsideClick(this.id,
+                        event);
+                },
+
                 enableKeyboardNav() {
                     this.keyboardNav = true;
                 },
@@ -165,8 +180,21 @@
                     ].includes(key);
                 },
 
+                getMenuContainer() {
+                    return (
+                        this.$store.menu.instances[this.id]
+                        ?.container ?? null
+                    );
+                },
+
                 getOpenSub() {
-                    for (const element of this.$root
+                    const container = this.getMenuContainer();
+
+                    if (!container) {
+                        return null;
+                    }
+
+                    for (const element of container
                             .querySelectorAll(
                                 '[data-slot="dropdown-menu-sub"]',
                             )) {
@@ -238,13 +266,14 @@
 
                 getHighlightedItemElement() {
                     const activeId = this
-                        .getHighlightedItemId();
+                .getHighlightedItemId();
+                    const container = this.getMenuContainer();
 
-                    if (!activeId) {
+                    if (!activeId || !container) {
                         return null;
                     }
 
-                    return this.$root.querySelector(
+                    return container.querySelector(
                         `[data-menu-item-id="${activeId}"]`,
                     );
                 },
@@ -252,17 +281,20 @@
                 focusHighlightedItem() {
                     const activeId = this
                 .getHighlightedItemId();
+                    const container = this.getMenuContainer();
+
+                    if (!container) {
+                        return;
+                    }
 
                     this.$nextTick(() => {
-                        this.$root
+                        container
                             .querySelectorAll(
                                 '[data-menu-item-id]')
                             .forEach((element) => {
-                                if (
-                                    element.dataset
+                                if (element.dataset
                                     .menuItemId !==
-                                    activeId
-                                ) {
+                                    activeId) {
                                     element.blur();
                                 }
                             });
@@ -276,13 +308,14 @@
 
                 openActiveSubmenu(event) {
                     const activeId = this
-                        .getHighlightedItemId();
+                .getHighlightedItemId();
+                    const container = this.getMenuContainer();
 
-                    if (!activeId) {
+                    if (!activeId || !container) {
                         return false;
                     }
 
-                    const subTrigger = this.$root.querySelector(
+                    const subTrigger = container.querySelector(
                         `[data-menu-item-id="${activeId}"][data-slot="dropdown-menu-sub-trigger"]`,
                     );
 

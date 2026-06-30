@@ -26,7 +26,7 @@
     };
 
     $presetClass = (new \AiluraCode\Bladcn\Support\ClassResolver())->add(
-        'group/menu absolute z-50 flex min-w-32 flex-col overflow-x-hidden overflow-y-auto rounded-lg border bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+        'group/menu fixed z-50 flex min-w-32 flex-col overflow-x-hidden overflow-y-auto rounded-lg border bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
     );
 
     $presetAttributes = [
@@ -38,15 +38,19 @@
     $mergedStyle = filled($style) ? $style : null;
 @endphp
 
-<div {{ $attributes->merge($presetAttributes)->class([$presetClass, $class]) }}
-    @if ($mergedStyle !== null) style="{{ $mergedStyle }}" @endif
-    x-anchor.{{ $anchorPlacement }}.offset.{{ $sideOffset }}="$refs.trigger"
-    x-bind:data-keyboard-nav="keyboardNav ? '' : null"
-    x-bind:data-state="panelOpen ? 'open' : 'closed'"
-    x-bind="$store.menu.menuProps(id)"
-    x-cloak
-    x-init="$store.menu.bindMenu(id, $el)"
-    x-on:pointermove="disableKeyboardNav()"
-    x-show="panelOpen">
-    {{ $slot }}
-</div>
+<template x-teleport="body">
+    <div {{ $attributes->merge($presetAttributes)->class([$presetClass, $class]) }}
+        @if ($mergedStyle !== null) style="{{ $mergedStyle }}" @endif
+        data-slot="dropdown-menu-portal"
+        x-anchor.{{ $anchorPlacement }}.offset.{{ $sideOffset }}.fixed="$refs.trigger"
+        x-bind:data-keyboard-nav="keyboardNav ? '' : null"
+        x-bind:data-menu-id="id"
+        x-bind:data-state="panelOpen ? 'open' : 'closed'"
+        x-bind="$store.menu.menuProps(id)"
+        x-cloak
+        x-init="$store.menu.bindMenu(id, $el)"
+        x-on:pointermove="disableKeyboardNav()"
+        x-show="panelOpen">
+        {{ $slot }}
+    </div>
+</template>

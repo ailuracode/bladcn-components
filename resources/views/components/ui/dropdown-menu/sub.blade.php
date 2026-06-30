@@ -33,12 +33,33 @@
                 resolvedSubSide: 'right',
                 closeTimer: null,
 
-                get menuRoot() {
+                resolveMenuRoot() {
+                    const menuId = this.$el
+                        .closest('[data-menu-id]')
+                        ?.getAttribute('data-menu-id');
+
+                    if (menuId) {
+                        for (const root of document
+                                .querySelectorAll(
+                                    '[data-slot="dropdown-menu"]',
+                                )) {
+                            const data = Alpine.$data(root);
+
+                            if (data?.id === menuId) {
+                                return data;
+                            }
+                        }
+                    }
+
                     const root = this.$el.closest(
                         '[data-slot="dropdown-menu"]',
                     );
 
                     return root ? Alpine.$data(root) : null;
+                },
+
+                get menuRoot() {
+                    return this.resolveMenuRoot();
                 },
 
                 get panelOpen() {
@@ -124,11 +145,7 @@
                     const trigger = this.$refs.subTrigger;
                     const triggerId = trigger?.dataset
                         .menuItemId;
-                    const menuRoot = this.$el.closest(
-                        '[data-slot="dropdown-menu"]',
-                    );
-                    const menu = menuRoot ? Alpine.$data(
-                        menuRoot) : null;
+                    const menu = this.resolveMenuRoot();
 
                     if (menu && triggerId) {
                         menu.highlightedItemId = triggerId;
@@ -137,7 +154,7 @@
                     }
 
                     trigger?.focus({
-                        preventScroll: true
+                        preventScroll: true,
                     });
                 },
 
@@ -187,11 +204,7 @@
                         return false;
                     }
 
-                    const menuRoot = this.$el.closest(
-                        '[data-slot="dropdown-menu"]',
-                    );
-                    const menu = menuRoot ? Alpine.$data(
-                        menuRoot) : null;
+                    const menu = this.resolveMenuRoot();
 
                     if (menu?.enableKeyboardNav) {
                         menu.enableKeyboardNav();
