@@ -1,3 +1,4 @@
 {
-  "dependencies": ["abstract", "icon"]
+  "dependencies": ["abstract", "icon"],
+  "npm": ["@ailuracode/alpine-scroll"]
 }
