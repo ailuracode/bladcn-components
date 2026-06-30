@@ -12,6 +12,7 @@
 
     $presetAttributes = [
         'data-slot' => 'dialog-description',
+        'x-bind:id' => 'id + \'-description\'',
     ];
 
     if (filled($style)) {

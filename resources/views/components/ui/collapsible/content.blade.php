@@ -1,6 +1,6 @@
 @blaze(fold: true)
 
-@aware(['open' => false, 'transition' => true])
+@aware(['transition' => true])
 
 @props([
     'style' => null,
@@ -16,7 +16,9 @@
 
     $presetAttributes = [
         'data-slot' => 'collapsible-content',
-        'data-state' => $open ? 'open' : 'closed',
+        'x-bind:id' => 'id + \'-content\'',
+        'x-bind:data-state' => 'isOpen ? \'open\' : \'closed\'',
+        'x-show' => 'isOpen',
     ];
 
     if (filled($style)) {
@@ -24,12 +26,8 @@
     }
 @endphp
 
-<div :data-state="isOpen ? 'open' : 'closed'"
-    {{ $attributes->merge($presetAttributes)->class([$presetClass, $class]) }}
+<div {{ $attributes->merge($presetAttributes)->class([$presetClass, $class]) }}
     @if ($transition) x-collapse.duration.200ms @endif
-    @unless ($open)
-        x-cloak
-    @endunless
-    x-show="isOpen">
+    x-cloak>
     {{ $slot }}
 </div>

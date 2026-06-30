@@ -1,7 +1,7 @@
 @blaze(fold: true)
 
 @props([
-    'asChild' => false,
+    'asChild' => true,
     'style' => null,
     'class' => null,
 ])
@@ -17,7 +17,7 @@
     }
 
     $alpineAttributes = [
-        'x-on:click' => 'close()',
+        'x-on:click' => '$store.dialog.close(id)',
     ];
 @endphp
 

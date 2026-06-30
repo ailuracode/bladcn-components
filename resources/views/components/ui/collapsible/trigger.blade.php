@@ -1,9 +1,7 @@
 @blaze(fold: true)
 
-@aware(['open' => false])
-
 @props([
-    'asChild' => false,
+    'asChild' => true,
     'style' => null,
     'class' => null,
 ])
@@ -20,10 +18,9 @@
 
     $alpineAttributes = [
         'x-on:click' => 'toggle()',
-        'data-state' => $open ? 'open' : 'closed',
-        'aria-expanded' => $open ? 'true' : 'false',
-        'x-bind:data-state' => "isOpen ? 'open' : 'closed'",
+        'x-bind:data-state' => 'isOpen ? \'open\' : \'closed\'',
         'x-bind:aria-expanded' => 'isOpen',
+        'x-bind:aria-controls' => 'id + \'-content\'',
     ];
 @endphp
 

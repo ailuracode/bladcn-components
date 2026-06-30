@@ -2,6 +2,7 @@
 {{-- @see https://ui.shadcn.com/docs/components/collapsible --}}
 
 @props([
+    'id' => null,
     'open' => false,
     'transition' => true,
     'style' => null,
@@ -9,8 +10,6 @@
 ])
 
 @php
-    $transition = filter_var($transition, FILTER_VALIDATE_BOOLEAN);
-
     $presetAttributes = [
         'data-slot' => 'collapsible',
     ];
@@ -20,17 +19,23 @@
     }
 @endphp
 
-<div :data-state="isOpen ? 'open' : 'closed'"
-    {{ $attributes->merge($presetAttributes)->class($class) }}
-    data-state="{{ $open ? 'open' : 'closed' }}"
-    x-data="bladcnCollapsible({ open: @js($open) })">
+<div {{ $attributes->merge($presetAttributes)->class($class) }}
+    x-bind:data-state="isOpen ? 'open' : 'closed'"
+    x-data="bladcnCollapsible({ id: @js(filled($id) ? $id : null), open: @js($open) })"
+    x-id="['collapsible']">
     {{ $slot }}
 </div>
 @pushOnce('bladcn-scripts')
     <script>
         bladcnOnAlpine((Alpine) => {
             Alpine.data('bladcnCollapsible', (config = {}) => ({
+                initId: config.id ?? null,
                 isOpen: config.open ?? false,
+
+                get id() {
+                    return this.initId ?? this.$id(
+                        'collapsible');
+                },
 
                 toggle() {
                     this.isOpen = !this.isOpen;

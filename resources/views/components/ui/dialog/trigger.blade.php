@@ -1,7 +1,7 @@
 @blaze(fold: true)
 
 @props([
-    'asChild' => false,
+    'asChild' => true,
     'style' => null,
     'class' => null,
 ])
@@ -17,9 +17,10 @@
     }
 
     $alpineAttributes = [
-        'x-on:click' => 'open()',
-        'x-bind:data-state' => "isOpen ? 'open' : 'closed'",
-        'x-bind:aria-expanded' => 'isOpen',
+        'x-on:click' => '$store.dialog.open(id, { trigger: $event.target })',
+        'x-bind:data-state' =>
+            '$store.dialog.isOpen(id) ? \'open\' : \'closed\'',
+        'x-bind:aria-expanded' => '$store.dialog.isOpen(id)',
     ];
 @endphp
 
